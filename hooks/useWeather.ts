@@ -27,17 +27,21 @@ export const useWeather = () => {
       })();
 
       const weatherPromise = fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,is_day,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation,visibility&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,is_day,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation,visibility&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`
       );
 
-      const [city, response] = await Promise.all([geoPromise, weatherPromise]);
+      const pollenPromise = fetch(
+        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&daily=grass_pollen&timezone=auto`
+      ).then(r => r.json()).catch(() => null);
+
+      const [city, response, pollenData] = await Promise.all([geoPromise, weatherPromise, pollenPromise]);
 
       if (!response.ok) throw new Error('API Error');
 
       const result = await response.json();
 
       // Use the new helper function
-      const newData = processWeatherData(city, result);
+      const newData = processWeatherData(city, result, new Date(), pollenData);
 
       setData(newData);
       setLoading(false);

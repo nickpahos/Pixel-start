@@ -58,10 +58,13 @@ export interface WeatherData {
     tempMax: number;
     tempMin: number;
     precipProb: number;
+    uvIndex: number;
+    hourlyPrecip: number[];
+    pollenGrass?: number;
   }[];
 }
 
-export const processWeatherData = (city: string, result: any, now: Date = new Date()): WeatherData => {
+export const processWeatherData = (city: string, result: any, now: Date = new Date(), pollenData?: any): WeatherData => {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
@@ -121,12 +124,19 @@ export const processWeatherData = (city: string, result: any, now: Date = new Da
   if (result.daily && Array.isArray(result.daily.time)) {
     dailyForecast = result.daily.time.slice(0, 7).map((dateStr: string, i: number) => {
       const date = new Date(dateStr + 'T12:00:00');
+      const startHour = i * 24;
+      const hourlyPrecip: number[] = result.hourly?.precipitation_probability
+        ? result.hourly.precipitation_probability.slice(startHour, startHour + 24)
+        : [];
       return {
         date: i === 0 ? 'Today' : DAYS[date.getDay()],
         weatherCode: result.daily.weather_code[i],
         tempMax: Math.round(result.daily.temperature_2m_max[i]),
         tempMin: Math.round(result.daily.temperature_2m_min[i]),
         precipProb: result.daily.precipitation_probability_max?.[i] || 0,
+        uvIndex: Math.round(result.daily.uv_index_max?.[i] ?? 0),
+        hourlyPrecip,
+        pollenGrass: pollenData?.daily?.grass_pollen?.[i] ?? undefined,
       };
     });
   }

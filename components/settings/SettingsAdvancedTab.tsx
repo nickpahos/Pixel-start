@@ -72,7 +72,7 @@ export const SettingsAdvancedTab: React.FC<SettingsAdvancedTabProps> = ({
     onCustomCssChange,
     weatherLocation, setWeatherLocation,
 }) => {
-    const [suburbQuery, setSuburbQuery] = useState('');
+    const [suburbQuery, setSuburbQuery] = useState(weatherLocation.name ?? '');
     const [suburbResults, setSuburbResults] = useState<{ display: string; name: string; latitude: number; longitude: number }[]>([]);
     const [suburbLoading, setSuburbLoading] = useState(false);
     const [suburbOpen, setSuburbOpen] = useState(false);
