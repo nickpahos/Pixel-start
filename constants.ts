@@ -242,6 +242,17 @@ export const THEMES: Record<string, Theme> = {
       accent: '#6699cc',
       hover: '#23343f'
     }
+  },
+  eink: {
+    name: 'e-ink',
+    colors: {
+      bg: '#f5f5f0',
+      fg: '#1a1a1a',
+      muted: '#999990',
+      border: '#c8c8c0',
+      accent: '#1a1a1a',
+      hover: '#e8e8e0'
+    }
   }
 };
 

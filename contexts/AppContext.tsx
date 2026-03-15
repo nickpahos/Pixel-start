@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useStickyState } from '../hooks/useStickyState';
 import { THEMES, LINKS_DATA } from '../constants';
 import { TodoItem, LinkGroup, Theme, Layouts, FunOptions } from '../types';
 
@@ -114,8 +115,8 @@ interface AppContextType {
     presets: any[];
     setPresets: (presets: any[]) => void;
 
-    weatherLocation: { latitude: null | number; longitude: null | number };
-    setWeatherLocation: (location: { latitude: null | number; longitude: null | number }) => void;
+    weatherLocation: { latitude: null | number; longitude: null | number; name?: string };
+    setWeatherLocation: (location: { latitude: null | number; longitude: null | number; name?: string }) => void;
 
     // Actions
     handleSaveCustomTheme: (newTheme: Theme) => void;
@@ -136,28 +137,28 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [currentTheme, setCurrentTheme] = useState<string>('greyish');
-    const [customThemes, setCustomThemes] = useState<Record<string, Theme>>({});
+    const [currentTheme, setCurrentTheme] = useStickyState<string>('greyish', 'tui-theme');
+    const [customThemes, setCustomThemes] = useStickyState<Record<string, Theme>>({}, 'tui-custom-themes');
     const [isThemeMakerOpen, setIsThemeMakerOpen] = useState(false);
 
-    const [todos, setTodos] = useState<TodoItem[]>([]);
-    const [linkGroups, setLinkGroups] = useState<LinkGroup[]>(LINKS_DATA);
-    const [customCss, setCustomCss] = useState<string>('');
-    const [statsMode, setStatsMode] = useState<'text' | 'graph' | 'detailed' | 'minimal'>('minimal');
-    const [weatherMode, setWeatherMode] = useState<'standard' | 'icon'>('standard');
-    const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS);
+    const [todos, setTodos] = useStickyState<TodoItem[]>([], 'tui-todos');
+    const [linkGroups, setLinkGroups] = useStickyState<LinkGroup[]>(LINKS_DATA, 'tui-links');
+    const [customCss, setCustomCss] = useStickyState<string>('', 'tui-custom-css');
+    const [statsMode, setStatsMode] = useStickyState<'text' | 'graph' | 'detailed' | 'minimal'>('minimal', 'tui-stats-mode');
+    const [weatherMode, setWeatherMode] = useStickyState<'standard' | 'icon'>('standard', 'tui-weather-mode');
+    const [layouts, setLayouts] = useStickyState<Layouts>(DEFAULT_LAYOUTS, 'tui-layouts-v5');
 
-    const [tempUnit, setTempUnit] = useState<'C' | 'F'>('C');
+    const [tempUnit, setTempUnit] = useStickyState<'C' | 'F'>('C', 'tui-temp-unit');
 
-    const [widgetRadius, setWidgetRadius] = useState<number>(0);
-    const [openInNewTab, setOpenInNewTab] = useState<boolean>(false);
-    const [showWidgetTitles, setShowWidgetTitles] = useState<boolean>(true);
-    const [reserveSettingsSpace, setReserveSettingsSpace] = useState<boolean>(true);
-    const [customFont, setCustomFont] = useState<string>('');
+    const [widgetRadius, setWidgetRadius] = useStickyState<number>(0, 'tui-widget-radius');
+    const [openInNewTab, setOpenInNewTab] = useStickyState<boolean>(false, 'tui-open-new-tab');
+    const [showWidgetTitles, setShowWidgetTitles] = useStickyState<boolean>(true, 'tui-show-titles');
+    const [reserveSettingsSpace, setReserveSettingsSpace] = useStickyState<boolean>(true, 'tui-reserve-settings');
+    const [customFont, setCustomFont] = useStickyState<string>('', 'tui-custom-font');
 
-    const [funOptionsRaw, setFunOptions] = useState<FunOptions>(funDefaults);
+    const [funOptionsRaw, setFunOptions] = useStickyState<FunOptions>(funDefaults, 'tui-fun-options-v3');
 
-    const [weatherLocation, setWeatherLocation] = useState<{ latitude: null | number; longitude: null | number }>({ latitude: null, longitude: null });
+    const [weatherLocation, setWeatherLocation] = useStickyState<{ latitude: null | number; longitude: null | number; name?: string }>({ latitude: null, longitude: null }, 'tui-weather-location');
 
     // merge defaults
     const funOptions = {
@@ -172,27 +173,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         maze: { ...funDefaults.maze, ...funOptionsRaw?.maze },
     };
 
-    const [activeWidgets, setActiveWidgets] = useState<Record<string, boolean>>({
+    const [activeWidgets, setActiveWidgets] = useStickyState<Record<string, boolean>>({
         search: true,
         datetime: true,
         stats: true,
         weather: true,
-        todo: false,
         links: true,
         donut: true,
-        matrix: false,
-        pipes: false,
         snake: true,
         life: true,
-        fireworks: false,
-        starfield: false,
-        rain: false,
         maze: true
-    });
+    }, 'tui-active-widgets-v5');
 
-    const [isLayoutLocked, setIsLayoutLocked] = useState<boolean>(true);
-    const [isResizingEnabled, setIsResizingEnabled] = useState<boolean>(false);
-    const [presets, setPresets] = useState<any[]>([]);
+    const [isLayoutLocked, setIsLayoutLocked] = useStickyState<boolean>(false, 'tui-layout-locked-v3');
+    const [isResizingEnabled, setIsResizingEnabled] = useStickyState<boolean>(true, 'tui-resizing-enabled-v2');
+    const [presets, setPresets] = useStickyState<any[]>([], 'tui-presets');
 
     const allThemes = { ...THEMES, ...customThemes };
     const isCrt = currentTheme === 'crt';

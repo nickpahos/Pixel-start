@@ -112,13 +112,7 @@
 }
 
 .react-resizable-handle::after {
-    content: '';
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-color: var(--color-accent);
-    border-style: solid;
-    box-sizing: border-box;
+    content: none;
 }
 
 .react-resizable-handle-se {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AsciiSlider } from '../AsciiSlider';
 
 interface SettingsAdvancedTabProps {
@@ -38,8 +38,8 @@ interface SettingsAdvancedTabProps {
     onFunOptionsChange: (options: any) => void;
     customCss: string;
     onCustomCssChange: (css: string) => void;
-    weatherLocation: { latitude: null | number; longitude: null | number };
-    setWeatherLocation: (location: { latitude:  null | number; longitude: null | number }) => void;
+    weatherLocation: { latitude: null | number; longitude: null | number; name?: string };
+    setWeatherLocation: (location: { latitude: null | number; longitude: null | number; name?: string }) => void;
 
 }
 
@@ -72,6 +72,54 @@ export const SettingsAdvancedTab: React.FC<SettingsAdvancedTabProps> = ({
     onCustomCssChange,
     weatherLocation, setWeatherLocation,
 }) => {
+    const [suburbQuery, setSuburbQuery] = useState('');
+    const [suburbResults, setSuburbResults] = useState<{ display: string; name: string; latitude: number; longitude: number }[]>([]);
+    const [suburbLoading, setSuburbLoading] = useState(false);
+    const [suburbOpen, setSuburbOpen] = useState(false);
+    const suburbRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const q = suburbQuery.trim();
+        if (q.length < 2) { setSuburbResults([]); setSuburbOpen(false); return; }
+
+        setSuburbLoading(true);
+        const timer = setTimeout(async () => {
+            try {
+                const res = await fetch(
+                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=10&language=en&format=json`
+                );
+                const json = await res.json();
+                const results = (json.results || [])
+                    .filter((r: any) => r.country_code === 'AU')
+                    .map((r: any) => ({
+                        display: [r.name, r.admin2, r.admin1].filter(Boolean).join(', '),
+                        name: r.name,
+                        latitude: r.latitude,
+                        longitude: r.longitude,
+                    }));
+                setSuburbResults(results);
+                setSuburbOpen(results.length > 0);
+            } catch {
+                setSuburbResults([]);
+            } finally {
+                setSuburbLoading(false);
+            }
+        }, 350);
+
+        return () => clearTimeout(timer);
+    }, [suburbQuery]);
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (suburbRef.current && !suburbRef.current.contains(e.target as Node)) {
+                setSuburbOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
     return (
         <div className="space-y-6">
 
@@ -231,15 +279,52 @@ export const SettingsAdvancedTab: React.FC<SettingsAdvancedTabProps> = ({
 
 
                     <div className="flex flex-col gap-2 mt-2 border-t border-[var(--color-border)] pt-2 border-dashed">
-                        <h3 className="text-[var(--color-accent)] font-bold ">Weather Location</h3>
-                        <div className="flex flex-col gap-1 ">
+                        <h3 className="text-[var(--color-accent)] font-bold">Weather Location</h3>
+
+                        {/* Suburb autocomplete */}
+                        <div className="flex flex-col gap-1 relative" ref={suburbRef}>
+                            <label className="text-[var(--color-muted)] text-sm">Search Australian Suburb</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    className="bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-fg)] px-2 py-1 text-sm focus:border-[var(--color-accent)] outline-none w-full select-text font-sans pr-6"
+                                    placeholder="e.g. Bondi, Fitzroy..."
+                                    value={suburbQuery}
+                                    onChange={(e) => { setSuburbQuery(e.target.value); }}
+                                    onFocus={() => suburbResults.length > 0 && setSuburbOpen(true)}
+                                />
+                                {suburbLoading && (
+                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] text-xs animate-pulse">...</span>
+                                )}
+                            </div>
+                            {suburbOpen && suburbResults.length > 0 && (
+                                <div className="flex flex-col border border-[var(--color-border)] bg-[var(--color-bg)] z-50 max-h-48 overflow-y-auto">
+                                    {suburbResults.map((r, i) => (
+                                        <button
+                                            key={i}
+                                            className="text-left px-2 py-1.5 text-sm text-[var(--color-fg)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg)] transition-colors font-mono truncate"
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                setWeatherLocation({ latitude: r.latitude, longitude: r.longitude, name: r.name });
+                                                setSuburbQuery(r.name);
+                                                setSuburbOpen(false);
+                                            }}
+                                        >
+                                            {r.display}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col gap-1">
                             <label htmlFor="latitude" className="text-[var(--color-muted)] text-sm">Latitude</label>
                             <input type="text" id="latitude" className="bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-fg)] px-2 py-1 text-sm focus:border-[var(--color-accent)] outline-none w-full select-text font-sans" placeholder={String(weatherLocation.latitude ?? '1.234567')} onChange={(e) => setWeatherLocation({ latitude: Number(e.target.value), longitude: weatherLocation.longitude })}/>
-                         </div>
-                         <div className="flex flex-col gap-1 ">
+                        </div>
+                        <div className="flex flex-col gap-1">
                             <label htmlFor="longitude" className="text-[var(--color-muted)] text-sm">Longitude</label>
-                            <input type="text" id="longitude" className="bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-fg)] px-2 py-1 text-sm focus:border-[var(--color-accent)] outline-none w-full select-text font-sans" placeholder={String(weatherLocation.longitude ?? '1.234567')} onChange={(e) => setWeatherLocation({ latitude: weatherLocation.latitude, longitude: Number(e.target.value) })}/>  
-                        </div>  
+                            <input type="text" id="longitude" className="bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-fg)] px-2 py-1 text-sm focus:border-[var(--color-accent)] outline-none w-full select-text font-sans" placeholder={String(weatherLocation.longitude ?? '1.234567')} onChange={(e) => setWeatherLocation({ latitude: weatherLocation.latitude, longitude: Number(e.target.value) })}/>
+                        </div>
                     </div>
 
                 </div>

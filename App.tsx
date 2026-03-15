@@ -7,22 +7,15 @@ import { TuiBox } from './components/TuiBox';
 import { DateTimeWidget } from './components/DateTimeWidget';
 import { StatsWidget } from './components/StatsWidget';
 import { WeatherWidget } from './components/WeatherWidget';
-import { TodoWidget } from './components/TodoWidget';
 import { LinksWidget } from './components/LinksWidget';
 import { SearchWidget } from './components/SearchWidget';
 import { DonutWidget } from './components/DonutWidget';
-import { MatrixWidget } from './components/MatrixWidget';
-import { PipesWidget } from './components/PipesWidget';
 import { SnakeWidget } from './components/SnakeWidget';
 import { GameOfLifeWidget } from './components/GameOfLifeWidget';
-import { FireworksWidget } from './components/FireworksWidget';
-import { StarfieldWidget } from './components/StarfieldWidget';
-import { RainWidget } from './components/RainWidget';
 import { MazeWidget } from './components/MazeWidget';
 import { Settings } from './components/Settings';
 import { ThemeMaker } from './components/ThemeMaker';
-import { LayoutPagination } from './components/LayoutPagination';
-import { LAYOUT_PRESETS } from './layoutPresets';
+import { WidgetPicker } from './components/WidgetPicker';
 import { AppProvider, useAppContext } from './contexts/AppContext';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -30,10 +23,9 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 function AppContent() {
   const {
     isThemeMakerOpen, setIsThemeMakerOpen,
-    todos, setTodos,
     linkGroups,
     statsMode,
-    weatherMode,
+
     layouts, setLayouts,
     tempUnit,
     openInNewTab,
@@ -46,6 +38,7 @@ function AppContent() {
     isResizingEnabled,
     handleSaveCustomTheme,
     removeExtraWidget,
+    toggleWidget,
     isCrt
   } = useAppContext();
 
@@ -57,13 +50,6 @@ function AppContent() {
 
   const appStyle = {
     fontFamily: customFont ? customFont : '"JetBrains Mono", monospace'
-  };
-
-  const [presetIndex, setPresetIndex] = useState(0);
-
-  const handlePresetChange = (index: number) => {
-    setPresetIndex(index);
-    setLayouts(LAYOUT_PRESETS[index]);
   };
 
   const [gridReady, setGridReady] = useState(false);
@@ -95,6 +81,7 @@ function AppContent() {
       )}
 
       <Settings />
+      <WidgetPicker />
 
       {isThemeMakerOpen && (
         <ThemeMaker
@@ -144,7 +131,9 @@ function AppContent() {
                         : (type === 'todo' ? 'todo-list' : type === 'search' ? 'web_search' : type)
                 ),
                 showTitle: showWidgetTitles,
-                onClose: isExtra ? () => removeExtraWidget(key) : undefined
+                onClose: !isLayoutLocked
+                    ? (isExtra ? () => removeExtraWidget(key) : () => toggleWidget(key))
+                    : undefined
             };
 
             switch (type) {
@@ -155,27 +144,15 @@ function AppContent() {
                 case 'stats':
                     return <TuiBox {...boxProps} title="stats"><StatsWidget mode={statsMode} /></TuiBox>;
                 case 'weather':
-                    return <TuiBox {...boxProps} title="weather"><WeatherWidget mode={weatherMode} unit={tempUnit} /></TuiBox>;
-                case 'todo':
-                    return <TuiBox {...boxProps} title="todo-list"><TodoWidget tasks={todos} setTasks={setTodos} /></TuiBox>;
+                    return <TuiBox {...boxProps} title="weather"><WeatherWidget unit={tempUnit} /></TuiBox>;
                 case 'links':
                     return <TuiBox {...boxProps} title="links"><LinksWidget groups={linkGroups} openInNewTab={openInNewTab} /></TuiBox>;
                 case 'donut':
                     return <TuiBox {...boxProps}><DonutWidget speed={funOptions.donut.speed} /></TuiBox>;
-                case 'matrix':
-                    return <TuiBox {...boxProps}><MatrixWidget options={funOptions.matrix} /></TuiBox>;
-                case 'pipes':
-                    return <TuiBox {...boxProps}><PipesWidget options={funOptions.pipes} /></TuiBox>;
                 case 'snake':
                     return <TuiBox {...boxProps}><SnakeWidget speed={funOptions.snake.speed} /></TuiBox>;
                 case 'life':
                     return <TuiBox {...boxProps}><GameOfLifeWidget speed={funOptions.life.speed} /></TuiBox>;
-                case 'fireworks':
-                    return <TuiBox {...boxProps}><FireworksWidget speed={funOptions.fireworks.speed} explosionSize={funOptions.fireworks.explosionSize} /></TuiBox>;
-                case 'starfield':
-                    return <TuiBox {...boxProps}><StarfieldWidget speed={funOptions.starfield.speed} /></TuiBox>;
-                case 'rain':
-                    return <TuiBox {...boxProps}><RainWidget speed={funOptions.rain.speed} /></TuiBox>;
                 case 'maze':
                     return <TuiBox {...boxProps}><MazeWidget speed={funOptions.maze.speed} /></TuiBox>;
                 default:
@@ -186,7 +163,6 @@ function AppContent() {
         </ResponsiveGridLayout>
       </div>
 
-      <LayoutPagination current={presetIndex} onChange={handlePresetChange} />
     </div>
   );
 }

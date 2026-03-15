@@ -13,7 +13,7 @@ export const TuiBox = forwardRef<HTMLDivElement, TuiBoxProps>(({ title, classNam
   return (
     <div
       ref={ref}
-      className={`border border-[var(--color-border)] bg-[var(--color-bg)] relative flex flex-col widget-rounded ${className}`}
+      className={`border border-[var(--color-border)] bg-[var(--color-bg)] relative flex flex-col widget-rounded group/widget ${className}`}
       style={{ ...props.style }}
       {...props}
     >
@@ -27,7 +27,7 @@ export const TuiBox = forwardRef<HTMLDivElement, TuiBoxProps>(({ title, classNam
           </div>
           {onClose && (
             <div
-              className="mr-3 bg-[var(--color-bg)] px-2 text-[var(--color-muted)] hover:text-red-500 text-sm font-bold cursor-pointer pointer-events-auto"
+              className="mr-3 bg-[var(--color-bg)] px-2 text-[var(--color-muted)] hover:text-red-500 text-sm font-bold cursor-pointer pointer-events-auto opacity-0 group-hover/widget:opacity-100 transition-opacity"
               onClick={onClose}
             >
               [x]
@@ -42,7 +42,7 @@ export const TuiBox = forwardRef<HTMLDivElement, TuiBoxProps>(({ title, classNam
             />
             {onClose && (
             <div
-              className="absolute top-0 right-0 z-30 px-2 text-[var(--color-muted)] hover:text-red-500 text-sm font-bold cursor-pointer"
+              className="absolute top-0 right-0 z-30 px-2 text-[var(--color-muted)] hover:text-red-500 text-sm font-bold cursor-pointer opacity-0 group-hover/widget:opacity-100 transition-opacity"
               onClick={onClose}
             >
               [x]

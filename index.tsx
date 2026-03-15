@@ -7,6 +7,7 @@ import './index.css';
 import '@fontsource/jetbrains-mono';
 import '@fontsource/vt323';
 import 'dseg/css/dseg.css';
+import 'weather-icons/css/weather-icons.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

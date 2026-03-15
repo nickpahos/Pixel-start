@@ -52,6 +52,13 @@ export interface WeatherData {
     weatherCode?: number;
     isDay?: number;
   }[];
+  dailyForecast: {
+    date: string;
+    weatherCode: number;
+    tempMax: number;
+    tempMin: number;
+    precipProb: number;
+  }[];
 }
 
 export const processWeatherData = (city: string, result: any, now: Date = new Date()): WeatherData => {
@@ -108,9 +115,26 @@ export const processWeatherData = (city: string, result: any, now: Date = new Da
     });
   }
 
+  // Daily Forecast - 7 days
+  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  let dailyForecast: WeatherData['dailyForecast'] = [];
+  if (result.daily && Array.isArray(result.daily.time)) {
+    dailyForecast = result.daily.time.slice(0, 7).map((dateStr: string, i: number) => {
+      const date = new Date(dateStr + 'T12:00:00');
+      return {
+        date: i === 0 ? 'Today' : DAYS[date.getDay()],
+        weatherCode: result.daily.weather_code[i],
+        tempMax: Math.round(result.daily.temperature_2m_max[i]),
+        tempMin: Math.round(result.daily.temperature_2m_min[i]),
+        precipProb: result.daily.precipitation_probability_max?.[i] || 0,
+      };
+    });
+  }
+
   return {
     locationName: city,
     current: currentData,
-    forecast: standardForecast
+    forecast: standardForecast,
+    dailyForecast,
   };
 };
