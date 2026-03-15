@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useStickyState } from '../hooks/useStickyState';
 import { THEMES, LINKS_DATA } from '../constants';
 import { TodoItem, LinkGroup, Theme, Layouts, FunOptions } from '../types';
 
@@ -7,33 +6,57 @@ import { TodoItem, LinkGroup, Theme, Layouts, FunOptions } from '../types';
 const DEFAULT_LAYOUTS: Layouts = {
   lg: [
     { i: 'settings-guard', x: 11, y: 0, w: 1, h: 1, static: true },
-    { i: 'search', x: 2, y: 0, w: 7, h: 2, minW: 1, minH: 2 },
-    { i: 'datetime', x: 6, y: 2, w: 3, h: 3, minW: 1, minH: 2 },
-    { i: 'stats', x: 5, y: 2, w: 1, h: 3, minW: 1, minH: 2 },
-    { i: 'weather', x: 2, y: 2, w: 3, h: 9, minW: 1, minH: 2 },
-    { i: 'todo', x: 5, y: 5, w: 4, h: 6, minW: 1, minH: 2 },
-    { i: 'links', x: 2, y: 11, w: 7, h: 5, minW: 1, minH: 2 },
-    { i: 'snake', x: 2, y: 16, w: 7, h: 2, minW: 1, minH: 2 }
+        { i: 'search', x: 0, y: 0, w: 11, h: 2, minW: 1, minH: 2 },
+        { i: 'datetime', x: 0, y: 2, w: 4, h: 4, minW: 1, minH: 2 },
+        { i: 'stats', x: 4, y: 2, w: 2, h: 4, minW: 1, minH: 2 },
+        { i: 'weather', x: 6, y: 2, w: 6, h: 4, minW: 1, minH: 2 },
+        { i: 'todo', x: 0, y: 6, w: 4, h: 7, minW: 1, minH: 2 },
+        { i: 'links', x: 4, y: 6, w: 8, h: 7, minW: 1, minH: 2 },
+        { i: 'snake', x: 0, y: 13, w: 4, h: 5, minW: 1, minH: 2 },
+        { i: 'matrix', x: 4, y: 13, w: 4, h: 5, minW: 1, minH: 2 },
+        { i: 'pipes', x: 8, y: 13, w: 4, h: 5, minW: 1, minH: 2 },
+        { i: 'donut', x: 0, y: 18, w: 3, h: 5, minW: 1, minH: 2 },
+        { i: 'life', x: 3, y: 18, w: 3, h: 5, minW: 1, minH: 2 },
+        { i: 'fireworks', x: 6, y: 18, w: 3, h: 5, minW: 1, minH: 2 },
+        { i: 'starfield', x: 9, y: 18, w: 3, h: 5, minW: 1, minH: 2 },
+        { i: 'rain', x: 0, y: 23, w: 6, h: 5, minW: 1, minH: 2 },
+        { i: 'maze', x: 6, y: 23, w: 6, h: 5, minW: 1, minH: 2 },
   ],
-  md: [
-    { i: 'search', x: 0, y: 0, w: 11, h: 2, minW: 2, minH: 2 },
+    md: [
     { i: 'settings-guard', x: 11, y: 0, w: 1, h: 1, static: true },
-    { i: 'datetime', x: 0, y: 2, w: 8, h: 4, minW: 2, minH: 2 },
-    { i: 'stats', x: 8, y: 2, w: 4, h: 4, minW: 2, minH: 2 },
-    { i: 'weather', x: 0, y: 6, w: 4, h: 6, minW: 2, minH: 2 },
-    { i: 'todo', x: 4, y: 6, w: 8, h: 6, minW: 2, minH: 2 },
-    { i: 'links', x: 0, y: 12, w: 12, h: 4, minW: 2, minH: 2 },
-    { i: 'snake', x: 0, y: 44, w: 2, h: 4, minW: 1, minH: 2 }
+      { i: 'search', x: 0, y: 0, w: 11, h: 2, minW: 2, minH: 2 },
+      { i: 'datetime', x: 0, y: 2, w: 6, h: 4, minW: 2, minH: 2 },
+      { i: 'stats', x: 6, y: 2, w: 6, h: 4, minW: 2, minH: 2 },
+      { i: 'weather', x: 0, y: 6, w: 4, h: 6, minW: 2, minH: 2 },
+      { i: 'todo', x: 4, y: 6, w: 8, h: 6, minW: 2, minH: 2 },
+      { i: 'links', x: 0, y: 12, w: 12, h: 4, minW: 2, minH: 2 },
+      { i: 'snake', x: 0, y: 16, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'matrix', x: 6, y: 16, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'pipes', x: 0, y: 21, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'donut', x: 6, y: 21, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'life', x: 0, y: 26, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'fireworks', x: 6, y: 26, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'starfield', x: 0, y: 31, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'rain', x: 6, y: 31, w: 6, h: 5, minW: 1, minH: 2 },
+      { i: 'maze', x: 0, y: 36, w: 12, h: 5, minW: 1, minH: 2 },
   ],
   sm: [
     { i: 'settings-guard', x: 5, y: 0, w: 1, h: 1, static: true },
-    { i: 'search', x: 0, y: 0, w: 5, h: 2, minW: 2, minH: 2 },
-    { i: 'datetime', x: 0, y: 2, w: 6, h: 4, minW: 2, minH: 2 },
-    { i: 'stats', x: 0, y: 6, w: 6, h: 3, minW: 2, minH: 2 },
-    { i: 'weather', x: 0, y: 9, w: 6, h: 4, minW: 2, minH: 2 },
-    { i: 'todo', x: 0, y: 13, w: 6, h: 5, minW: 2, minH: 2 },
-    { i: 'links', x: 0, y: 18, w: 6, h: 4, minW: 2, minH: 2 },
-    { i: 'snake', x: 0, y: 22, w: 2, h: 4, minW: 1, minH: 2 }
+      { i: 'search', x: 0, y: 0, w: 5, h: 2, minW: 2, minH: 2 },
+      { i: 'datetime', x: 0, y: 2, w: 6, h: 4, minW: 2, minH: 2 },
+      { i: 'stats', x: 0, y: 6, w: 6, h: 3, minW: 2, minH: 2 },
+      { i: 'weather', x: 0, y: 9, w: 6, h: 4, minW: 2, minH: 2 },
+      { i: 'todo', x: 0, y: 13, w: 6, h: 5, minW: 2, minH: 2 },
+      { i: 'links', x: 0, y: 18, w: 6, h: 4, minW: 2, minH: 2 },
+      { i: 'snake', x: 0, y: 22, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'matrix', x: 3, y: 22, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'pipes', x: 0, y: 27, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'donut', x: 3, y: 27, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'life', x: 0, y: 32, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'fireworks', x: 3, y: 32, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'starfield', x: 0, y: 37, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'rain', x: 3, y: 37, w: 3, h: 5, minW: 1, minH: 2 },
+      { i: 'maze', x: 0, y: 42, w: 6, h: 5, minW: 1, minH: 2 },
   ]
 };
 
@@ -113,29 +136,28 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [currentTheme, setCurrentTheme] = useStickyState<string>('greyish', 'tui-theme');
-    const [customThemes, setCustomThemes] = useStickyState<Record<string, Theme>>({}, 'tui-custom-themes');
+    const [currentTheme, setCurrentTheme] = useState<string>('greyish');
+    const [customThemes, setCustomThemes] = useState<Record<string, Theme>>({});
     const [isThemeMakerOpen, setIsThemeMakerOpen] = useState(false);
 
-    const [todos, setTodos] = useStickyState<TodoItem[]>([], 'tui-todos');
-    const [linkGroups, setLinkGroups] = useStickyState<LinkGroup[]>(LINKS_DATA, 'tui-links');
-    const [customCss, setCustomCss] = useStickyState<string>('', 'tui-custom-css');
-    const [statsMode, setStatsMode] = useStickyState<'text' | 'graph' | 'detailed' | 'minimal'>('minimal', 'tui-stats-mode');
-    const [weatherMode, setWeatherMode] = useStickyState<'standard' | 'icon'>('standard', 'tui-weather-mode');
-    const [layouts, setLayouts] = useStickyState<Layouts>(DEFAULT_LAYOUTS, 'tui-layouts-v4');
+    const [todos, setTodos] = useState<TodoItem[]>([]);
+    const [linkGroups, setLinkGroups] = useState<LinkGroup[]>(LINKS_DATA);
+    const [customCss, setCustomCss] = useState<string>('');
+    const [statsMode, setStatsMode] = useState<'text' | 'graph' | 'detailed' | 'minimal'>('minimal');
+    const [weatherMode, setWeatherMode] = useState<'standard' | 'icon'>('standard');
+    const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS);
 
-    const [tempUnit, setTempUnit] = useStickyState<'C' | 'F'>('C', 'tui-temp-unit');
+    const [tempUnit, setTempUnit] = useState<'C' | 'F'>('C');
 
-    const [widgetRadius, setWidgetRadius] = useStickyState<number>(0, 'tui-widget-radius');
-    const [openInNewTab, setOpenInNewTab] = useStickyState<boolean>(false, 'tui-open-new-tab');
-    const [showWidgetTitles, setShowWidgetTitles] = useStickyState<boolean>(true, 'tui-show-titles');
-    const [reserveSettingsSpace, setReserveSettingsSpace] = useStickyState<boolean>(true, 'tui-reserve-settings');
-    const [customFont, setCustomFont] = useStickyState<string>('', 'tui-custom-font');
+    const [widgetRadius, setWidgetRadius] = useState<number>(0);
+    const [openInNewTab, setOpenInNewTab] = useState<boolean>(false);
+    const [showWidgetTitles, setShowWidgetTitles] = useState<boolean>(true);
+    const [reserveSettingsSpace, setReserveSettingsSpace] = useState<boolean>(true);
+    const [customFont, setCustomFont] = useState<string>('');
 
-    const [funOptionsRaw, setFunOptions] = useStickyState<FunOptions>(funDefaults, 'tui-fun-options-v3');
-    
-    const [weatherLocation, setWeatherLocation] = useStickyState<{ latitude: null | number; longitude: null | number }>({ latitude: null, longitude: null }, 'tui-weather-location');
+    const [funOptionsRaw, setFunOptions] = useState<FunOptions>(funDefaults);
 
+    const [weatherLocation, setWeatherLocation] = useState<{ latitude: null | number; longitude: null | number }>({ latitude: null, longitude: null });
 
     // merge defaults
     const funOptions = {
@@ -150,27 +172,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         maze: { ...funDefaults.maze, ...funOptionsRaw?.maze },
     };
 
-    const [activeWidgets, setActiveWidgets] = useStickyState<Record<string, boolean>>({
+    const [activeWidgets, setActiveWidgets] = useState<Record<string, boolean>>({
         search: true,
         datetime: true,
         stats: true,
         weather: true,
-        todo: true,
+        todo: false,
         links: true,
-        donut: false,
+        donut: true,
         matrix: false,
         pipes: false,
         snake: true,
-        life: false,
+        life: true,
         fireworks: false,
         starfield: false,
         rain: false,
-        maze: false
-    }, 'tui-active-widgets-v4');
+        maze: true
+    });
 
-    const [isLayoutLocked, setIsLayoutLocked] = useStickyState<boolean>(true, 'tui-layout-locked-v2');
-    const [isResizingEnabled, setIsResizingEnabled] = useStickyState<boolean>(false, 'tui-resizing-enabled');
-    const [presets, setPresets] = useStickyState<any[]>([], 'tui-presets');
+    const [isLayoutLocked, setIsLayoutLocked] = useState<boolean>(true);
+    const [isResizingEnabled, setIsResizingEnabled] = useState<boolean>(false);
+    const [presets, setPresets] = useState<any[]>([]);
 
     const allThemes = { ...THEMES, ...customThemes };
     const isCrt = currentTheme === 'crt';

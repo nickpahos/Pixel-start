@@ -21,6 +21,8 @@ import { RainWidget } from './components/RainWidget';
 import { MazeWidget } from './components/MazeWidget';
 import { Settings } from './components/Settings';
 import { ThemeMaker } from './components/ThemeMaker';
+import { LayoutPagination } from './components/LayoutPagination';
+import { LAYOUT_PRESETS } from './layoutPresets';
 import { AppProvider, useAppContext } from './contexts/AppContext';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -57,6 +59,13 @@ function AppContent() {
     fontFamily: customFont ? customFont : '"JetBrains Mono", monospace'
   };
 
+  const [presetIndex, setPresetIndex] = useState(0);
+
+  const handlePresetChange = (index: number) => {
+    setPresetIndex(index);
+    setLayouts(LAYOUT_PRESETS[index]);
+  };
+
   const [gridReady, setGridReady] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
@@ -72,7 +81,7 @@ function AppContent() {
 
   return (
     <div
-      className={`min-h-screen w-full p-2 text-sm bg-[var(--color-bg)] relative overflow-hidden select-none ${isCrt ? 'theme-crt' : ''}`}
+      className={`min-h-screen w-full px-2 pb-2 pt-6 text-sm bg-[var(--color-bg)] relative overflow-hidden select-none ${isCrt ? 'theme-crt' : ''}`}
       style={appStyle}
     >
 
@@ -176,6 +185,8 @@ function AppContent() {
 
         </ResponsiveGridLayout>
       </div>
+
+      <LayoutPagination current={presetIndex} onChange={handlePresetChange} />
     </div>
   );
 }
